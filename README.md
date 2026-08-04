@@ -5,7 +5,7 @@ as reasoning engine over historical F1 data from F1-Stats API.
 
 ## Concept
 
-F1-Analyst consumes race data from [F1-Stats]([link](https://github.com/Maksymilian03/F1-Stats)) and adds an AI layer that:
+F1-Analyst consumes race data from [F1-Stats](https://github.com/Maksymilian03/F1-Stats) and adds an AI layer that:
 - Analyzes completed races with human-quality commentary
 - Generates predictions for upcoming races with reasoning
 
@@ -50,4 +50,4 @@ F1-Analyst consumes race data from [F1-Stats]([link](https://github.com/Maksymil
 
 ## Related projects
 
-- [F1-Stats]([link](https://github.com/Maksymilian03/F1-Stats)) — backend data provider used by F1-Analyst
+- [F1-Stats](https://github.com/Maksymilian03/F1-Stats) — backend data provider used by F1-Analyst
