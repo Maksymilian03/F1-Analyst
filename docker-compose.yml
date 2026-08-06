@@ -1,36 +1,12 @@
 services:
-  f1stats:
+  f1analyst:
     build: .
-    container_name: f1stats-container
+    container_name: f1analyst
     ports:
       - "8000:8000"
     volumes:
       - .:/app
     environment:
-      DATABASE_URL: ${DATABASE_URL}
-    
-    depends_on:
-      - db
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      F1_STATS_BASE_URL: ${F1_STATS_BASE_URL}
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
-  db:
-    image: postgres:17
-    container_name: f1stats-db
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    volumes:
-      - f1stats_postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"
-  db_test:
-    image: postgres:17
-    container_name: f1stats-db-test
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB_TEST}
-    ports:
-      - "5434:5432"
-volumes:
-  f1stats_postgres_data:
