@@ -8,3 +8,9 @@ class DriverStanding(BaseModel):
     points: float
     wins: int
     driver_number: int
+
+class SummaryResponse(BaseModel):
+    year: int
+    model: str
+    summary: str
+
