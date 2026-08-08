@@ -15,4 +15,5 @@ env/
 
 .vscode/
 
-*.log
+test_claude.py
+test_fetch.py
