@@ -2,16 +2,15 @@ from unittest.mock import AsyncMock, patch
 
 from fastapi.testclient import TestClient
 
-from main import app, get_anthropic_client
+from main import app
 from schemas import DriverStanding
 
 client = TestClient(app)
 
 @patch("main.generate_season_summary", new_callable=AsyncMock)
 @patch("main.fetch_driver_standings", new_callable=AsyncMock)
-def test_summary_endpoint_return_200_with_summary(mock_fetch_driver_standings, mock_generate_season_summary):
+def test_summary_endpoint_returns_200_with_summary(mock_fetch_driver_standings, mock_generate_season_summary):
     # Arrange
-    app.dependency_overrides[get_anthropic_client] = lambda: AsyncMock()
 
     mock_fetch_driver_standings.return_value = [
         DriverStanding(
@@ -25,18 +24,33 @@ def test_summary_endpoint_return_200_with_summary(mock_fetch_driver_standings, m
     ]
     mock_generate_season_summary.return_value = "Summary for Max Verstappen"
 
-    try:
-        # Act
-        response = client.get("/summary/2023/")
 
-        # Assert
-        assert response.status_code == 200
-        data = response.json()
-        assert data["year"] == 2023
-        assert data["model"] == "claude-haiku-4-5"
-        assert data["summary"] == "Summary for Max Verstappen"
+    # Act
+    response = client.get("/summary/2023/")
 
-        mock_fetch_driver_standings.assert_awaited_once_with(2023)
-        mock_generate_season_summary.assert_awaited_once()
-    finally:
-        app.dependency_overrides.clear()
+    # Assert
+    assert response.status_code == 200
+    data = response.json()
+    assert data["year"] == 2023
+    assert data["model"] == "claude-haiku-4-5"
+    assert data["summary"] == "Summary for Max Verstappen"
+
+    mock_fetch_driver_standings.assert_awaited_once_with(2023)
+    mock_generate_season_summary.assert_awaited_once()
+
+
+
+def test_summary_endpoint_returns_422_when_year_below_2023():
+    # Act
+    response = client.get("/summary/2022/")
+
+    # Assert
+    assert response.status_code == 422
+
+
+def test_summary_endpoint_returns_422_when_year_above_current():
+    # Act
+    response = client.get("/summary/2100/")
+
+    # Assert
+    assert response.status_code == 422
