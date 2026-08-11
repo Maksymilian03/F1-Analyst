@@ -1,53 +1,78 @@
 # F1-Analyst
 
-AI-powered analysis and prediction API for Formula 1 races. Uses Anthropic Claude 
-as reasoning engine over historical F1 data from F1-Stats API.
+API wykorzystujące AI do analizy i predykcji wyścigów Formuły 1. Używa Anthropic Claude jako silnika reasoning na danych historycznych z F1-Stats API.
 
-## Concept
+## Koncept
 
-F1-Analyst consumes race data from [F1-Stats](https://github.com/Maksymilian03/F1-Stats) and adds an AI layer that:
-- Analyzes completed races with human-quality commentary
-- Generates predictions for upcoming races with reasoning
+F1-Analyst pobiera dane z projektu [F1-Stats](https://github.com/Maksymilian03/F1-Stats) i dodaje warstwę AI, która:
+- Analizuje zakończone wyścigi generując komentarz
+- Generuje predykcje nadchodzących wyścigów z uzasadnieniem
 
-## Tech Stack
+## Stack technologiczny
 
 - Python 3.13
 - FastAPI
-- Anthropic Claude API (claude-sonnet-4-5 or claude-haiku-4-5)
-- httpx (async client for F1-Stats API)
-- Pydantic (structured LLM output)
+- Anthropic Claude API (claude-haiku-4-5)
+- httpx (async client do F1-Stats API)
+- Pydantic (walidacja i structured output)
 - Docker + docker-compose
 - GitHub Actions CI/CD (pytest + ruff + mypy)
 
-## Endpoints (planned MVP)
+## Endpointy
+
+### Dostępne
+
+| Metoda | Endpoint | Opis |
+|--------|----------|------|
+| GET | /health/ | Health check API |
+| GET | /summary/{year}/ | Podsumowanie sezonu F1 wygenerowane przez AI |
+
+### Planowane (v0.2)
 
 | Metoda | Endpoint | Opis |
 |--------|----------|------|
 | GET | /analyze/{year}/{country}/ | Analiza zakończonego wyścigu |
 | POST | /predict/{year}/{country}/ | Predykcja nadchodzącego wyścigu z uzasadnieniem |
-| GET | /health/ | Health check |
+
+## Przykład: GET /summary/2024/
+
+Endpoint pobiera aktualną klasyfikację kierowców z F1-Stats API dla podanego sezonu i generuje 2-akapitowe podsumowanie sezonu przy użyciu Anthropic Claude (haiku-4-5). Podsumowanie zawiera walkę o mistrzostwo, kluczowych zawodników i najciekawsze historie sezonu.
+
+**Odpowiedź:**
+
+​```json
+{
+    "year":2024,
+    "model":"claude-haiku-4-5",
+    "summary":"# Podsumowanie Sezonu Formuły 1 2024\n\nMax Verstappen po raz czwarty z rzędu zdobył tytuł mistrza świata, choć tym razem jego dominacja została poddana poważniejszej próbie niż w poprzednich latach. Holender zakończył sezon z 434 punktami i 9 zwycięstwami..."
+}
+​```
+
+Czas odpowiedzi: 2-5 sekund (generacja przez Claude).
 
 ## Roadmap
 
-### v0.1 MVP (target: 1 miesiąc)
-- [ ] Integration z F1-Stats API (httpx client)
-- [ ] Anthropic API integration
-- [ ] Endpoint /analyze/ — race analysis z LLM
-- [ ] Structured LLM output przez Pydantic
-- [ ] Docker Compose setup
-- [ ] Podstawowe testy (unit + integration z mocked LLM)
+### Zrobione (v0.1)
+- [x] Integracja z F1-Stats API (httpx client)
+- [x] Integracja z Anthropic API
+- [x] Endpoint /summary/{year}/ z generacją AI
+- [x] Structured output przez Pydantic
+- [x] Docker Compose setup
+- [x] Testy integracyjne (happy path + walidacja)
+- [x] CI/CD (pytest + ruff + mypy)
 
-### v0.2
-- [ ] Endpoint /predict/ z uzasadnieniem
-- [ ] Caching odpowiedzi LLM (drogo strzelać za każdym razem)
-- [ ] Structured logging (structlog)
-- [ ] Deploy live
+### W planach (v0.2)
+- [ ] Endpoint /analyze/{year}/{country}/ — analiza pojedynczego wyścigu
+- [ ] Endpoint /predict/{year}/{country}/ — predykcje z uzasadnieniem
+- [ ] Cache odpowiedzi LLM (Redis)
+- [ ] Strukturalne logowanie (structlog)
+- [ ] Deploy live (Render lub inne)
 
 ### v1.0
-- [ ] Frontend prosty (opcjonalnie React albo Streamlit)
+- [ ] Prosty frontend (React lub Streamlit)
 - [ ] Rate limiting
-- [ ] Cost monitoring (token usage per request)
+- [ ] Monitorowanie kosztów (użycie tokenów per request)
 
-## Related projects
+## Powiązane projekty
 
-- [F1-Stats](https://github.com/Maksymilian03/F1-Stats) — backend data provider used by F1-Analyst
+- [F1-Stats](https://github.com/Maksymilian03/F1-Stats) — backend dostarczający dane wykorzystywany przez F1-Analyst
