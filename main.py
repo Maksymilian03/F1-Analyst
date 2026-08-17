@@ -5,8 +5,13 @@ from anthropic import AsyncAnthropic
 from fastapi import Depends, FastAPI, Path
 from pydantic import BaseModel
 
-from schemas import SummaryResponse
-from services import fetch_driver_standings, generate_season_summary
+from schemas import AnalysisResponse, SummaryResponse
+from services import (
+    fetch_driver_standings,
+    fetch_race_results,
+    generate_race_analysis,
+    generate_season_summary,
+)
 
 CURRENT_YEAR = datetime.now().year
 
@@ -41,6 +46,25 @@ async def get_season_summary(
         summary=summary_text
     )
 
+
+@app.get('/analyze/{year}/{country}/', response_model=AnalysisResponse)
+async def get_race_analysis(
+    year: int = Path(..., ge=2023, le=CURRENT_YEAR),
+    country: str = Path(..., min_length=2, max_length=20),
+    anthropic_client: AsyncAnthropic = Depends(get_anthropic_client) # noqa: B008
+) -> AnalysisResponse:
+    """
+    Endpoint to fetch the F1 race analysis for a given year and country.
+    """
+    results = await fetch_race_results(year, country)
+    analysis_text = await generate_race_analysis(year, country, results, anthropic_client)
+
+    return AnalysisResponse(
+        year=year,
+        country=country,
+        model="claude-haiku-4-5",
+        analysis=analysis_text
+    )
 
 class HealthResponse(BaseModel):
     status: str
