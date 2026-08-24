@@ -1,5 +1,6 @@
 from unittest.mock import AsyncMock, patch
 
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
 from main import app
@@ -53,3 +54,22 @@ def test_analyze_endpoint_returns_422_when_year_above_current():
 
     # Assert
     assert response.status_code == 422
+
+
+
+@patch('main.fetch_race_results', new_callable=AsyncMock)
+def test_analyze_endpoint_returns_404_with_nonexistentcountry(mock_fetch_race_results):
+    # Arrange
+    mock_fetch_race_results.side_effect = HTTPException(
+    status_code=404,
+    detail="Race not found for NonExistentCountry in 2025",
+    )
+
+    # Act
+    response = client.get("/analyze/2025/NonExistentCountry/")
+
+    # Assert
+    assert response.status_code == 404
+    data = response.json()
+    assert "detail" in data
+    assert data["detail"] == "Race not found for NonExistentCountry in 2025"
