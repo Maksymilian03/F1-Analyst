@@ -73,3 +73,5 @@ def test_analyze_endpoint_returns_404_with_nonexistentcountry(mock_fetch_race_re
     data = response.json()
     assert "detail" in data
     assert data["detail"] == "Race not found for NonExistentCountry in 2025"
+
+    mock_fetch_race_results.assert_awaited_once_with(2025, 'NonExistentCountry')
