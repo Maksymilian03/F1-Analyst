@@ -26,7 +26,7 @@ def build_summary_prompt(year: int, standings: list[DriverStanding]) -> str:
         for driver in standings
     )
     return (
-            f"Jesteś ekspertem w Formule 1. Bazujac na podsumowaniu sezonu {year}, "
+            f"Jesteś ekspertem w Formule 1. Bazując na podsumowaniu sezonu {year}, "
             f"napisz podsumowanie w dwóch akapitach, obejmujące walkę o mistrzostwo, "
             f"kluczowych performerów i najciekawszych historii.\n\n"
             f"Podsumowanie:\n{standings_txt}"
@@ -71,16 +71,16 @@ async def fetch_race_results(year: int, country: str) -> list[RaceResult]:
 
 def build_analysis_prompt(year: int, country: str, results: list[RaceResult]) -> str:
 
-    def format_result(results: RaceResult) -> str:
-        if results.dnf:
-            return f"DNF: {results.full_name} (#{results.driver_number})"
-        if results.dns:
-            return f"DNS: {results.full_name} (#{results.driver_number})"
-        if results.dsq:
-            return f"DSQ: {results.full_name} (#{results.driver_number})"
+    def format_result(result: RaceResult) -> str:
+        if result.dnf:
+            return f"DNF: {result.full_name} (#{result.driver_number})"
+        if result.dns:
+            return f"DNS: {result.full_name} (#{result.driver_number})"
+        if result.dsq:
+            return f"DSQ: {result.full_name} (#{result.driver_number})"
         return (
-            f"{results.position}. {results.full_name} "
-            f"(#{results.driver_number}) - Gap to leader: {results.gap_to_leader}"
+            f"{result.position}. {result.full_name} "
+            f"(#{result.driver_number}) - Gap to leader: {result.gap_to_leader}"
         )
 
     results_txt = "\n".join(
