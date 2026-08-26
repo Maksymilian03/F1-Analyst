@@ -26,12 +26,12 @@ F1-Analyst pobiera dane z projektu [F1-Stats](https://github.com/Maksymilian03/F
 |--------|----------|------|
 | GET | /health/ | Health check API |
 | GET | /summary/{year}/ | Podsumowanie sezonu F1 wygenerowane przez AI |
+| GET | /analyze/{year}/{country}/ | Analiza zakończonego wyścigu |
 
 ### Planowane (v0.2)
 
 | Metoda | Endpoint | Opis |
 |--------|----------|------|
-| GET | /analyze/{year}/{country}/ | Analiza zakończonego wyścigu |
 | POST | /predict/{year}/{country}/ | Predykcja nadchodzącego wyścigu z uzasadnieniem |
 
 ## Przykład: GET /summary/2024/
@@ -60,9 +60,9 @@ Czas odpowiedzi: 2-5 sekund (generacja przez Claude).
 - [x] Docker Compose setup
 - [x] Testy integracyjne (happy path + walidacja)
 - [x] CI/CD (pytest + ruff + mypy)
+- [x] Endpoint /analyze/{year}/{country}/ — analiza pojedynczego wyścigu
 
 ### W planach (v0.2)
-- [ ] Endpoint /analyze/{year}/{country}/ — analiza pojedynczego wyścigu
 - [ ] Endpoint /predict/{year}/{country}/ — predykcje z uzasadnieniem
 - [ ] Cache odpowiedzi LLM (Redis)
 - [ ] Strukturalne logowanie (structlog)
