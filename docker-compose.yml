@@ -9,4 +9,11 @@ services:
     environment:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       F1_STATS_BASE_URL: ${F1_STATS_BASE_URL}
+      REDIS_URL: redis://redis:6379
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    depends_on:
+      - redis
+  redis:
+    container_name: f1analyst-redis
+    image: redis:7-alpine
+

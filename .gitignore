@@ -17,3 +17,4 @@ env/
 
 test_claude.py
 test_fetch.py
+redis_check.py
