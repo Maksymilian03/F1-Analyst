@@ -1,9 +1,11 @@
 import os
 from datetime import datetime
 
+import redis.asyncio as redis
 from anthropic import AsyncAnthropic
 from fastapi import Depends, FastAPI, Path
 from pydantic import BaseModel
+from redis.asyncio.client import Redis
 
 from schemas import AnalysisResponse, SummaryResponse
 from services import (
@@ -14,6 +16,7 @@ from services import (
 )
 
 CURRENT_YEAR = datetime.now().year
+REDIS_URL = os.environ.get("REDIS_URL", "redis://redis:6379")
 
 
 app = FastAPI(
@@ -27,6 +30,10 @@ def get_anthropic_client() -> "AsyncAnthropic":
     Create and return an instance of the AsyncAnthropic client.
     """
     return AsyncAnthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
+
+def get_redis_client() -> Redis:
+    return redis.from_url(REDIS_URL, decode_responses=True)
 
 
 @app.get('/summary/{year}/', response_model=SummaryResponse)

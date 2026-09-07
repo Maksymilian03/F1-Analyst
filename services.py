@@ -1,10 +1,10 @@
 import os
 
 import httpx
-from redis.asyncio.client import Redis
 from anthropic import AsyncAnthropic
 from anthropic.types import TextBlock
 from fastapi import HTTPException
+from redis.asyncio.client import Redis
 
 from schemas import DriverStanding, RaceResult
 
