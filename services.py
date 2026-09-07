@@ -1,6 +1,7 @@
 import os
 
 import httpx
+from redis.asyncio.client import Redis
 from anthropic import AsyncAnthropic
 from anthropic.types import TextBlock
 from fastapi import HTTPException
@@ -113,3 +114,15 @@ async def generate_race_analysis(
         raise RuntimeError(f"Expected TextBlock, got {type(first_block).__name__}")
 
     return first_block.text
+
+
+async def save_summary_data_to_cache(year: int, data: str, redis_client: Redis) -> None:
+    cache_key = f"f1analyst:summary:{year}"
+    await redis_client.set(cache_key, data, ex=86400)
+
+async def load_summary_data_from_cache(year: int, redis_client: Redis) -> bytes | str | None:
+    cache_key = f"f1analyst:summary:{year}"
+    data = await redis_client.get(cache_key)
+
+    return data
+
