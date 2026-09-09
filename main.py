@@ -13,6 +13,8 @@ from services import (
     fetch_race_results,
     generate_race_analysis,
     generate_season_summary,
+    load_summary_data_from_cache,
+    save_summary_data_to_cache,
 )
 
 CURRENT_YEAR = datetime.now().year
@@ -39,19 +41,29 @@ def get_redis_client() -> Redis:
 @app.get('/summary/{year}/', response_model=SummaryResponse)
 async def get_season_summary(
     year: int = Path(..., ge=2023, le=CURRENT_YEAR),
-    anthropic_client: AsyncAnthropic = Depends(get_anthropic_client) # noqa: B008
+    anthropic_client: AsyncAnthropic = Depends(get_anthropic_client), # noqa: B008
+    redis_client: Redis = Depends(get_redis_client) # noqa: B008
 ) -> SummaryResponse:
     """
     Endpoint to fetch the F1 season summary for a given year.
     """
-    standings = await fetch_driver_standings(year)
-    summary_text = await generate_season_summary(year, standings, anthropic_client)
+    if (data :=await load_summary_data_from_cache(year, redis_client)):
+        return SummaryResponse(
+            year=year,
+            model="claude-haiku-4-5",
+            summary=str(data)
+        )
+    else:
+        standings = await fetch_driver_standings(year)
+        summary_text = await generate_season_summary(year, standings, anthropic_client)
 
-    return SummaryResponse(
-        year=year,
-        model="claude-haiku-4-5",
-        summary=summary_text
-    )
+        await save_summary_data_to_cache(year, summary_text, redis_client)
+
+        return SummaryResponse(
+            year=year,
+            model="claude-haiku-4-5",
+            summary=summary_text
+        )
 
 
 @app.get('/analyze/{year}/{country}/', response_model=AnalysisResponse)
