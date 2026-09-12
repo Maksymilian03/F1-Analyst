@@ -126,3 +126,25 @@ async def load_summary_data_from_cache(year: int, redis_client: Redis) -> bytes 
 
     return data
 
+
+async def save_analyze_data_to_cache(
+        year: int,
+        country: str,
+        data: str,
+        redis_client: Redis) -> None:
+    cache_key = f"f1analyst:analyze:{year}:{country}"
+    await redis_client.set(cache_key, data, ex=86400)
+
+
+async def load_analyze_data_from_cache(
+        year: int,
+        country: str,
+        redis_client: Redis
+        ) -> bytes | str | None:
+
+    cache_key = f"f1analyst:analyze:{year}:{country}"
+    data = await redis_client.get(cache_key)
+
+    return data
+
+

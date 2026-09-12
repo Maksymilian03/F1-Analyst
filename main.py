@@ -13,7 +13,9 @@ from services import (
     fetch_race_results,
     generate_race_analysis,
     generate_season_summary,
+    load_analyze_data_from_cache,
     load_summary_data_from_cache,
+    save_analyze_data_to_cache,
     save_summary_data_to_cache,
 )
 
@@ -70,20 +72,34 @@ async def get_season_summary(
 async def get_race_analysis(
     year: int = Path(..., ge=2023, le=CURRENT_YEAR),
     country: str = Path(..., min_length=2, max_length=20),
-    anthropic_client: AsyncAnthropic = Depends(get_anthropic_client) # noqa: B008
+    anthropic_client: AsyncAnthropic = Depends(get_anthropic_client), # noqa: B008
+    redis_client: Redis = Depends(get_redis_client) # noqa: B008
 ) -> AnalysisResponse:
+
     """
     Endpoint to fetch the F1 race analysis for a given year and country.
     """
-    results = await fetch_race_results(year, country)
-    analysis_text = await generate_race_analysis(year, country, results, anthropic_client)
 
-    return AnalysisResponse(
-        year=year,
-        country=country,
-        model="claude-haiku-4-5",
-        analysis=analysis_text
-    )
+    if (data := await load_analyze_data_from_cache(year, country, redis_client)):
+        return AnalysisResponse(
+            year=year,
+            country=country,
+            model="claude-haiku-4-5",
+            analysis=str(data)
+        )
+    else:
+        results = await fetch_race_results(year, country)
+        analysis_text = await generate_race_analysis(year, country, results, anthropic_client)
+
+        await save_analyze_data_to_cache(year, country, analysis_text, redis_client)
+
+        return AnalysisResponse(
+            year=year,
+            country=country,
+            model="claude-haiku-4-5",
+            analysis=analysis_text
+        )
+
 
 class HealthResponse(BaseModel):
     status: str
